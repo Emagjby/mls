@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Notification from "../components/ui/Notification";
 import { logSessionInfo } from "@/utils/supabase/client-logger";
-import { useAuth } from "@/hooks/useAuth";
 
 // Demo data
 const demoCourses = [
@@ -42,7 +41,6 @@ const demoCourses = [
 ];
 
 export default function HomePage() {
-  const { refreshAuth } = useAuth();
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info" | "warning";
     title: string;
@@ -55,14 +53,10 @@ export default function HomePage() {
     isVisible: false,
   });
 
-  const handleRefreshAuth = useCallback(() => {
-    logSessionInfo();
-    refreshAuth();
-  }, [refreshAuth]);
-
   useEffect(() => {
-    handleRefreshAuth();
-  }, [handleRefreshAuth]);
+    // Log session info once on page load
+    logSessionInfo();
+  }, []);
 
   useEffect(() => {
     // Check if user came from email confirmation
