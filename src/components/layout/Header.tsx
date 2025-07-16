@@ -3,17 +3,50 @@
 import React from "react";
 import Link from "next/link";
 import Button from "../ui/Button";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
+  const supabase = createClient();
+  const router = useRouter();
+
+  const { isLoggedIn, loading, refreshAuth } = useAuth();
+
+  async function signOut() {
+    try {
+      console.log("🔍 Starting logout process...");
+
+      // First, sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("❌ Logout error:", error);
+        return;
+      }
+
+      console.log("✅ Supabase logout successful");
+
+      // Force refresh the auth state
+      await refreshAuth();
+
+      // Wait a bit to ensure the auth state has updated
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      console.log("✅ Auth state refreshed, redirecting to login...");
+      router.push("/login");
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+    }
+  }
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">
-              MLS Learning Engine
-            </h1>
+            <h1 className="text-xl font-bold text-gray-900">MLS Framework</h1>
           </div>
 
           {/* Navigation */}
@@ -40,16 +73,30 @@ export default function Header() {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Login
+            {!isLoggedIn && !loading && (
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Login
+                </Button>
+              </Link>
+            )}
+            {!isLoggedIn && !loading && (
+              <Link href="/register">
+                <Button variant="primary" size="sm">
+                  Sign Up
+                </Button>
+              </Link>
+            )}
+            {isLoggedIn && !loading && (
+              <Button variant="primary" size="sm" onClick={() => signOut()}>
+                Log Out
               </Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="primary" size="sm">
-                Sign Up
-              </Button>
-            </Link>
+            )}
+            {loading && (
+              <div className="flex items-center space-x-4">
+                <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            )}
           </div>
         </div>
       </div>

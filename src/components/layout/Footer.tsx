@@ -6,10 +6,15 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <p className="text-gray-500 text-sm">
-            © 2024 MLS Learning Engine. Built with Next.js and Supabase.
+            © 2024 MLS Framework. Built with Next.js and Supabase.
           </p>
           <div className="mt-4 flex justify-center space-x-6">
-            <a href="#" className="text-gray-400 hover:text-gray-500">
+            <a
+              href="https://github.com/Emagjby/mls-framework"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-gray-500"
+            >
               <span className="sr-only">GitHub</span>
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path

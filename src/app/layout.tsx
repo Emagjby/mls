@@ -3,11 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import StagewiseDevToolbar from "../components/StagewiseDevToolbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MLS Learning Engine",
+  title: "MLS Framework",
   description: "A modular learning system engine with demo UI",
 };
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <StagewiseDevToolbar />
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">{children}</main>

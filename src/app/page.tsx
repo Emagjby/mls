@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
+import Notification from "../components/ui/Notification";
+import { logSessionInfo } from "@/utils/supabase/client-logger";
+import { useAuth } from "@/hooks/useAuth";
 
 // Demo data
 const demoCourses = [
@@ -39,14 +42,80 @@ const demoCourses = [
 ];
 
 export default function HomePage() {
+  const { refreshAuth } = useAuth();
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info" | "warning";
+    title: string;
+    message: string;
+    isVisible: boolean;
+  }>({
+    type: "info",
+    title: "",
+    message: "",
+    isVisible: false,
+  });
+
+  const handleRefreshAuth = useCallback(() => {
+    logSessionInfo();
+    refreshAuth();
+  }, [refreshAuth]);
+
+  useEffect(() => {
+    handleRefreshAuth();
+  }, [handleRefreshAuth]);
+
+  useEffect(() => {
+    // Check if user came from email confirmation
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailConfirmed = urlParams.get("emailConfirmed");
+    const message = urlParams.get("message");
+
+    if (emailConfirmed === "true") {
+      setNotification({
+        type: "success",
+        title: "Email Confirmed",
+        message: "Your email address has been successfully confirmed!",
+        isVisible: true,
+      });
+
+      // Clean up the URL parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("emailConfirmed");
+      window.history.replaceState({}, "", newUrl.toString());
+    } else if (message) {
+      // Handle the old email confirmation message
+      setNotification({
+        type: "info",
+        title: "Email Confirmation",
+        message: decodeURIComponent(message),
+        isVisible: true,
+      });
+
+      // Clean up the URL parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("message");
+      window.history.replaceState({}, "", newUrl.toString());
+    }
+  }, []);
+
+  const closeNotification = () => {
+    setNotification((prev) => ({ ...prev, isVisible: false }));
+  };
   return (
     <div className="bg-gray-50 min-h-screen">
+      <Notification
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        isVisible={notification.isVisible}
+        onClose={closeNotification}
+      />
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to MLS Learning Engine
+              Welcome to MLS Framework
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               A powerful learning engine that provides modular learning
@@ -141,8 +210,8 @@ export default function HomePage() {
             Demo Information
           </h3>
           <p className="text-blue-800 mb-4">
-            This is a demo UI for the MLS Learning Engine. The components are
-            fully functional but not connected to any backend. You can:
+            This is a demo UI for the MLS Framework. The components are fully
+            functional but not connected to any backend. You can:
           </p>
           <ul className="text-blue-800 space-y-1 text-sm">
             <li>• Click buttons to see demo interactions</li>
