@@ -13,7 +13,7 @@ export default function Skeleton({
 }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${width} ${height} ${className}`}
+      className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${width} ${height} ${className}`}
     />
   );
 }

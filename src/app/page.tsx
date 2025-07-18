@@ -96,7 +96,7 @@ export default function HomePage() {
     setNotification((prev) => ({ ...prev, isVisible: false }));
   };
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Notification
         type={notification.type}
         title={notification.title}
@@ -105,13 +105,13 @@ export default function HomePage() {
         onClose={closeNotification}
       />
       {/* Hero Section */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Welcome to MLS Framework
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
               A powerful learning engine that provides modular learning
               experiences. This demo shows how the engine can be used to create
               engaging learning content.
@@ -126,10 +126,10 @@ export default function HomePage() {
       {/* Courses Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Your Courses
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Track your progress across different learning modules
           </p>
         </div>
@@ -146,10 +146,10 @@ export default function HomePage() {
                     {course.icon}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {course.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {course.description}
                     </p>
                   </div>
@@ -158,11 +158,11 @@ export default function HomePage() {
 
               {/* Progress Bar */}
               <div className="mb-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
                   <span>Progress</span>
                   <span>{course.progress}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
                     className="h-2 rounded-full transition-all duration-300"
                     style={{
@@ -171,7 +171,7 @@ export default function HomePage() {
                     }}
                   />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {course.completedStages} of {course.totalStages} stages
                   completed
                 </div>
@@ -199,15 +199,15 @@ export default function HomePage() {
         </div>
 
         {/* Demo Info */}
-        <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">
+        <div className="mt-12 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
             Demo Information
           </h3>
-          <p className="text-blue-800 mb-4">
+          <p className="text-blue-800 dark:text-blue-200 mb-4">
             This is a demo UI for the MLS Framework. The components are fully
             functional but not connected to any backend. You can:
           </p>
-          <ul className="text-blue-800 space-y-1 text-sm">
+          <ul className="text-blue-800 dark:text-blue-200 space-y-1 text-sm">
             <li>• Click buttons to see demo interactions</li>
             <li>• Navigate between pages (when created)</li>
             <li>• See how the UI components work</li>

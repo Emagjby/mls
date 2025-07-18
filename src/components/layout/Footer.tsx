@@ -2,10 +2,10 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
+    <footer className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             © 2024 MLS Framework. Built with Next.js and Supabase.
           </p>
           <div className="mt-4 flex justify-center space-x-6">
@@ -13,7 +13,7 @@ export default function Footer() {
               href="https://github.com/Emagjby/mls-framework"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-gray-500"
+              className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             >
               <span className="sr-only">GitHub</span>
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -24,7 +24,10 @@ export default function Footer() {
                 />
               </svg>
             </a>
-            <a href="#" className="text-gray-400 hover:text-gray-500">
+            <a
+              href="#"
+              className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            >
               <span className="sr-only">Documentation</span>
               <svg
                 className="h-6 w-6"

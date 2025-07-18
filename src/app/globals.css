@@ -1,20 +1,14 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Debug styles to see if dark mode is working */
+.debug-theme {
+  @apply bg-red-500 dark:bg-blue-500;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
   font-family: Arial, Helvetica, sans-serif;
 }
 

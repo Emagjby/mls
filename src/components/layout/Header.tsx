@@ -6,6 +6,7 @@ import Button from "../ui/Button";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 export default function Header() {
   const supabase = createClient();
@@ -41,31 +42,33 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">MLS Framework</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              MLS Framework
+            </h1>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link
               href="/"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Home
             </Link>
             <Link
               href="/courses"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Courses
             </Link>
             <Link
               href="/profile"
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Profile
             </Link>
@@ -73,6 +76,7 @@ export default function Header() {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
+            {isLoggedIn && !loading && <ThemeToggle />}
             {!isLoggedIn && !loading && (
               <Link href="/login">
                 <Button variant="ghost" size="sm">

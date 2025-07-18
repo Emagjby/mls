@@ -6,6 +6,11 @@ export interface UserPreferences {
   notifications: boolean;
 }
 
+export interface UserPreferencesWithoutTheme {
+  language: "en" | "es" | "fr" | "de";
+  notifications: boolean;
+}
+
 export interface PreferencesUpdateResult {
   success: boolean;
   error?: string;
@@ -26,6 +31,34 @@ export function validatePreferences(preferences: UserPreferences): {
       error: "Invalid theme selection",
     };
   }
+
+  // Validate language
+  const validLanguages = ["en", "es", "fr", "de"];
+  if (!validLanguages.includes(language)) {
+    return {
+      isValid: false,
+      error: "Invalid language selection",
+    };
+  }
+
+  // Validate notifications (boolean)
+  if (typeof notifications !== "boolean") {
+    return {
+      isValid: false,
+      error: "Invalid notifications setting",
+    };
+  }
+
+  return { isValid: true };
+}
+
+export function validatePreferencesWithoutTheme(
+  preferences: UserPreferencesWithoutTheme,
+): {
+  isValid: boolean;
+  error?: string;
+} {
+  const { language, notifications } = preferences;
 
   // Validate language
   const validLanguages = ["en", "es", "fr", "de"];
@@ -68,6 +101,65 @@ export async function updatePreferences(
       .from("users")
       .update({
         preferences: preferences,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating preferences:", error);
+      return {
+        success: false,
+        error: error.message || "Failed to update preferences",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Preferences updated successfully",
+    };
+  } catch (error) {
+    console.error("Unexpected error during preferences update:", error);
+    return {
+      success: false,
+      error: "An unexpected error occurred while updating preferences",
+    };
+  }
+}
+
+export async function updatePreferencesWithoutTheme(
+  userId: string,
+  preferences: UserPreferencesWithoutTheme,
+): Promise<PreferencesUpdateResult> {
+  try {
+    const supabase = createClient();
+
+    // Validate preferences
+    const validation = validatePreferencesWithoutTheme(preferences);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: validation.error || "Invalid preferences data",
+      };
+    }
+
+    // Get current preferences to preserve theme
+    const { data: currentData } = await supabase
+      .from("users")
+      .select("preferences")
+      .eq("id", userId)
+      .single();
+
+    const currentPreferences = currentData?.preferences || {};
+    const updatedPreferences = {
+      ...currentPreferences,
+      ...preferences,
+    };
+
+    // Update preferences in the database
+    const { error } = await supabase
+      .from("users")
+      .update({
+        preferences: updatedPreferences,
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId);

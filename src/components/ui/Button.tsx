@@ -28,10 +28,12 @@ export default function Button({
 
   const variants = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+    secondary:
+      "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600",
     outline:
-      "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900",
-    ghost: "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+      "border border-gray-300 dark:border-gray-600 bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white",
+    ghost:
+      "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white",
   };
 
   const sizes = {

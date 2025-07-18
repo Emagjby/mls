@@ -58,12 +58,14 @@ const demoCourses = [
 
 export default function CoursesPage() {
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">All Courses</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            All Courses
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Explore all available learning modules
           </p>
         </div>
@@ -97,10 +99,10 @@ export default function CoursesPage() {
                     {course.icon}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {course.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {course.description}
                     </p>
                   </div>
@@ -110,27 +112,39 @@ export default function CoursesPage() {
               {/* Course Info */}
               <div className="mb-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Difficulty:</span>
-                  <span className="font-medium">{course.difficulty}</span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Difficulty:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {course.difficulty}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">{course.duration}</span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Duration:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {course.duration}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Stages:</span>
-                  <span className="font-medium">{course.totalStages}</span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Stages:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {course.totalStages}
+                  </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
               {course.progress > 0 && (
                 <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
                     <span>Progress</span>
                     <span>{course.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div
                       className="h-2 rounded-full transition-all duration-300"
                       style={{
@@ -139,7 +153,7 @@ export default function CoursesPage() {
                       }}
                     />
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {course.completedStages} of {course.totalStages} stages
                     completed
                   </div>

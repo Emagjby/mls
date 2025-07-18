@@ -21,8 +21,8 @@ import {
   validateProfileData,
 } from "@/utils/auth/profile-update";
 import {
-  updatePreferences,
-  validatePreferences,
+  updatePreferencesWithoutTheme,
+  validatePreferencesWithoutTheme,
   type UserPreferences,
 } from "@/utils/auth/preferences-update";
 import Notification from "@/components/ui/Notification";
@@ -109,14 +109,11 @@ export default function ProfilePage() {
       setFormData({
         fullName: profile.full_name ?? "",
         email: profile.email ?? "",
-        theme: profile.preferences?.theme ?? "light",
         notifications: profile.preferences?.notifications ?? true,
         language: profile.preferences?.language ?? "en",
       });
 
       setPreferencesData({
-        theme:
-          (profile.preferences?.theme as "light" | "dark" | "auto") ?? "dark",
         language:
           (profile.preferences?.language as "en" | "es" | "fr" | "de") ?? "en",
         notifications: profile.preferences?.notifications ?? true,
@@ -129,12 +126,12 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    theme: "light" as string,
     notifications: true,
     language: "en" as string,
   });
-  const [preferencesData, setPreferencesData] = useState<UserPreferences>({
-    theme: "dark",
+  const [preferencesData, setPreferencesData] = useState<
+    Omit<UserPreferences, "theme">
+  >({
     language: "en",
     notifications: true,
   });
@@ -268,7 +265,7 @@ export default function ProfilePage() {
 
     try {
       // Validate the preferences data
-      const validation = validatePreferences(preferencesData);
+      const validation = validatePreferencesWithoutTheme(preferencesData);
 
       if (!validation.isValid) {
         setNotification({
@@ -283,8 +280,11 @@ export default function ProfilePage() {
       // Show loading state
       setIsSavingPreferences(true);
 
-      // Update the preferences
-      const result = await updatePreferences(user.id, preferencesData);
+      // Update the preferences (without theme)
+      const result = await updatePreferencesWithoutTheme(
+        user.id,
+        preferencesData,
+      );
 
       if (result.success) {
         setNotification({
@@ -415,7 +415,6 @@ export default function ProfilePage() {
     setFormData({
       fullName: profile?.full_name ?? "",
       email: profile?.email ?? "",
-      theme: profile?.preferences?.theme ?? "light",
       notifications: profile?.preferences?.notifications ?? true,
       language: profile?.preferences?.language ?? "en",
     });
@@ -423,7 +422,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Notification
         type={notification.type}
         title={notification.title}
@@ -434,8 +433,10 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Profile
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Manage your account settings and preferences
           </p>
         </div>
@@ -446,7 +447,7 @@ export default function ProfilePage() {
             {/* Basic Info */}
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Basic Information
                 </h2>
                 {!isEditing && (
@@ -490,10 +491,12 @@ export default function ProfilePage() {
                           </div>
                         )}
                         <div>
-                          <h3 className="text-lg font-medium text-gray-900">
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                             {profile?.full_name}
                           </h3>
-                          <p className="text-gray-600">{profile?.email}</p>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            {profile?.email}
+                          </p>
                         </div>
                       </>
                     )}
@@ -511,7 +514,7 @@ export default function ProfilePage() {
                   />
 
                   {isUploadingAvatar && (
-                    <div className="text-sm text-blue-600 text-center">
+                    <div className="text-sm text-blue-600 dark:text-blue-400 text-center">
                       Uploading avatar...
                     </div>
                   )}
@@ -557,7 +560,7 @@ export default function ProfilePage() {
             {/* Preferences */}
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Preferences
                 </h2>
                 {!isEditingPreferences && (
@@ -591,36 +594,19 @@ export default function ProfilePage() {
                   ) : (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Theme
-                        </label>
-                        <p className="text-gray-900 capitalize">
-                          {preferencesData.theme}
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Language
                         </label>
-                        <p className="text-gray-900">
-                          {preferencesData.language === "en"
-                            ? "English"
-                            : preferencesData.language === "es"
-                              ? "Spanish"
-                              : preferencesData.language === "fr"
-                                ? "French"
-                                : preferencesData.language === "de"
-                                  ? "German"
-                                  : "English"}
+                        <p className="text-gray-900 dark:text-white capitalize">
+                          {preferencesData.language}
                         </p>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Email Notifications
                         </label>
-                        <p className="text-gray-900">
+                        <p className="text-gray-900 dark:text-white">
                           {preferencesData.notifications
                             ? "Enabled"
                             : "Disabled"}
@@ -632,30 +618,14 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Theme
-                    </label>
-                    <select
-                      name="theme"
-                      value={preferencesData.theme}
-                      onChange={handlePreferencesChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="auto">Auto</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Language
                     </label>
                     <select
                       name="language"
                       value={preferencesData.language}
                       onChange={handlePreferencesChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     >
                       <option value="en">English</option>
                       <option value="es">Spanish</option>
@@ -670,9 +640,9 @@ export default function ProfilePage() {
                       name="notifications"
                       checked={preferencesData.notifications}
                       onChange={handlePreferencesChange}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
                     />
-                    <label className="ml-2 text-sm text-gray-700">
+                    <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Enable email notifications
                     </label>
                   </div>
@@ -702,23 +672,23 @@ export default function ProfilePage() {
           <div className="space-y-6">
             {/* Learning Stats */}
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Learning Stats
               </h2>
 
               <div className="space-y-4">
                 {isLoading || profile == null ? (
                   <>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <Skeleton className="w-16 h-7 mx-auto mb-2" />
                       <Skeleton className="w-24 h-4 mx-auto" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                         <Skeleton className="w-20 h-3 mx-auto my-1.5 " />
                         <Skeleton className="w-8 h-8 mx-auto" />
                       </div>
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                         <Skeleton className="w-16 h-3 mx-auto my-1.5" />
                         <Skeleton className="w-8 h-8 mx-auto" />
                       </div>
@@ -734,27 +704,29 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {stats?.average_score || 0}%
                       </div>
-                      <div className="text-sm text-blue-700">Average Score</div>
+                      <div className="text-sm text-blue-700 dark:text-blue-300">
+                        Average Score
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-lg font-bold text-green-600">
+                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
                           {stats?.completed_courses || 0}
                         </div>
-                        <div className="text-xs text-green-700">
+                        <div className="text-xs text-green-700 dark:text-green-300">
                           Courses Completed
                         </div>
                       </div>
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
-                        <div className="text-lg font-bold text-purple-600">
+                      <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
                           {stats?.total_courses || 0}
                         </div>
-                        <div className="text-xs text-purple-700">
+                        <div className="text-xs text-purple-700 dark:text-purple-300">
                           Total Courses
                         </div>
                       </div>
@@ -762,17 +734,19 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Stages Completed:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-300">
+                          Stages Completed:
+                        </span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {stats?.completed_stages || 0}/
                           {stats?.total_stages || 0}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-300">
                           Quizzes Completed:
                         </span>
-                        <span className="font-medium">
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {stats?.completed_quizzes || 0}/
                           {stats?.total_quizzes || 0}
                         </span>
@@ -785,7 +759,7 @@ export default function ProfilePage() {
 
             {/* Quick Actions */}
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Quick Actions
               </h2>
 
@@ -819,7 +793,7 @@ export default function ProfilePage() {
 
             {/* Account Actions */}
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Account
               </h2>
 
@@ -835,7 +809,7 @@ export default function ProfilePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-red-600 hover:text-red-700"
+                  className="w-full text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   onClick={() => alert("Demo: Delete account")}
                 >
                   Delete Account

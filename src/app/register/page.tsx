@@ -25,12 +25,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <Card className="max-w-md mx-auto">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-            <p className="text-gray-600 mt-2">Join MLS Framework</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Create Account
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
+              Join MLS Framework
+            </p>
           </div>
 
           <form className="space-y-4">
@@ -73,15 +77,21 @@ export default function RegisterPage() {
             <div className="flex items-center">
               <input
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
               />
-              <span className="ml-2 text-sm text-gray-600">
+              <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
                 I agree to the{" "}
-                <a href="#" className="text-blue-600 hover:text-blue-500">
+                <a
+                  href="#"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                >
                   Terms of Service
                 </a>{" "}
                 and{" "}
-                <a href="#" className="text-blue-600 hover:text-blue-500">
+                <a
+                  href="#"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                >
                   Privacy Policy
                 </a>
               </span>
@@ -99,11 +109,11 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Already have an account?{" "}
               <a
                 href="/login"
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
               >
                 Sign in
               </a>
