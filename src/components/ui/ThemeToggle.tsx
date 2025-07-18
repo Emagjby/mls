@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   updatePreferences,
@@ -12,6 +12,7 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const hasLoadedTheme = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -19,7 +20,7 @@ export function ThemeToggle() {
 
   // Load user's saved theme preference when component mounts (only once)
   useEffect(() => {
-    if (user?.id && mounted) {
+    if (user?.id && mounted && !hasLoadedTheme.current) {
       const loadUserTheme = async () => {
         try {
           const result = await getPreferences(user.id);
@@ -31,14 +32,16 @@ export function ThemeToggle() {
               setTheme(savedTheme);
             }
           }
+          hasLoadedTheme.current = true;
         } catch (error) {
           console.error("Failed to load theme from database:", error);
+          hasLoadedTheme.current = true;
         }
       };
 
       loadUserTheme();
     }
-  }, [user?.id, mounted, theme, setTheme]); // Include theme and setTheme in dependencies
+  }, [user?.id, mounted, theme, setTheme]); // Now we can safely include theme and setTheme
 
   const handleThemeToggle = async () => {
     const newTheme = theme === "dark" ? "light" : "dark";
