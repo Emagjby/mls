@@ -1,18 +1,46 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Card from "../../components/ui/Card";
 import { signup } from "./actions";
 import { logSessionInfo } from "@/utils/supabase/client-logger";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function RegisterPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const router = useRouter();
+  const { isLoggedIn, loading } = useAuth();
 
   useEffect(() => {
     logSessionInfo();
   }, []);
+
+  // Redirect logged-in users to home page
+  useEffect(() => {
+    if (!loading && isLoggedIn) {
+      router.push("/");
+    }
+  }, [isLoggedIn, loading, router]);
+
+  // Show loading while checking auth status
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render register form if user is already logged in
+  if (isLoggedIn) {
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Clear error when user starts typing

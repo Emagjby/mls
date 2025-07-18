@@ -7,16 +7,42 @@ import Input from "../../components/ui/Input";
 import Card from "../../components/ui/Card";
 import { createClient } from "@/utils/supabase/client";
 import { logSessionInfo } from "@/utils/supabase/client-logger";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
+  const { isLoggedIn, loading } = useAuth();
 
   useEffect(() => {
     logSessionInfo();
   }, []);
+
+  // Redirect logged-in users to home page
+  useEffect(() => {
+    if (!loading && isLoggedIn) {
+      router.push("/");
+    }
+  }, [isLoggedIn, loading, router]);
+
+  // Show loading while checking auth status
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render login form if user is already logged in
+  if (isLoggedIn) {
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Clear error when user starts typing
@@ -102,25 +128,35 @@ export default function LoginPage() {
             )}
 
             {isRedirecting && (
-              <div className="flex items-center justify-center space-x-2 p-2 bg-green-50 dark:bg-green-900/10 rounded-md">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-2.5 h-2.5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center space-x-2 p-2 bg-green-50 dark:bg-green-900/10 rounded-md">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-2.5 h-2.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-green-700 dark:text-green-300 text-sm font-medium">
+                    Login successful, redirecting...
+                  </span>
                 </div>
-                <span className="text-green-700 dark:text-green-300 text-sm font-medium">
-                  Login successful, redirecting...
-                </span>
+                <div className="text-center">
+                  <button
+                    onClick={() => router.push("/")}
+                    className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                  >
+                    Click here if not redirected automatically
+                  </button>
+                </div>
               </div>
             )}
 
