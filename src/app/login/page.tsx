@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+
   const router = useRouter();
   const { isLoggedIn, loading } = useAuth();
 
@@ -171,7 +172,7 @@ export default function LoginPage() {
                 </span>
               </label>
               <a
-                href="#"
+                href="/reset-password"
                 className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Forgot password?
