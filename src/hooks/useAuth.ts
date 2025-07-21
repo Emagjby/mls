@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { checkUserAuth, type AuthResult } from "@/utils/auth/user";
 
@@ -17,6 +17,7 @@ class AuthManager {
     new Set();
   private initialized = false;
   private subscription: { unsubscribe: () => void } | null = null;
+  private initializationPromise: Promise<void> | null = null;
 
   static getInstance(): AuthManager {
     if (!AuthManager.instance) {
@@ -26,58 +27,128 @@ class AuthManager {
   }
 
   private notifyListeners() {
-    this.listeners.forEach((listener) =>
-      listener(this.authState, this.loading),
-    );
+    this.listeners.forEach((listener) => {
+      try {
+        listener(this.authState, this.loading);
+      } catch (error) {
+        console.error("Error in auth listener:", error);
+      }
+    });
   }
 
   async initialize() {
+    // Prevent multiple simultaneous initializations
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+
+    if (this.initialized) {
+      return Promise.resolve();
+    }
+
+    this.initializationPromise = this._initialize();
+    return this.initializationPromise;
+  }
+
+  private async _initialize() {
     if (this.initialized) return;
-    this.initialized = true;
 
     const supabase = createClient();
 
-    // Initial auth check
-    try {
-      const result = await checkUserAuth();
-      this.authState = result;
-      this.loading = false;
-      this.notifyListeners();
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      this.authState = { isLoggedIn: false, user: null, session: null };
-      this.loading = false;
-      this.notifyListeners();
-    }
+    // Initial auth check with retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
 
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        // User signed in or token refreshed
+    while (retryCount < maxRetries) {
+      try {
+        // First, try to refresh the session
+        const { error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.warn("Session error during initialization:", sessionError);
+        }
+
+        // Then check user auth
         const result = await checkUserAuth();
         this.authState = result;
         this.loading = false;
         this.notifyListeners();
-      } else if (event === "SIGNED_OUT") {
-        // User signed out
-        this.authState = { isLoggedIn: false, user: null, session: null };
-        this.loading = false;
-        this.notifyListeners();
-      }
-    });
+        break;
+      } catch (error) {
+        console.error(`Auth check failed (attempt ${retryCount + 1}):`, error);
+        retryCount++;
 
-    this.subscription = subscription;
+        if (retryCount >= maxRetries) {
+          console.error("Max retries reached, setting default auth state");
+          this.authState = { isLoggedIn: false, user: null, session: null };
+          this.loading = false;
+          this.notifyListeners();
+        } else {
+          // Wait before retrying
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * retryCount),
+          );
+        }
+      }
+    }
+
+    // Listen for auth state changes with better error handling
+    try {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log(
+          "Auth state change:",
+          event,
+          session ? "Session exists" : "No session",
+        );
+
+        try {
+          if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            // User signed in or token refreshed
+            const result = await checkUserAuth();
+            this.authState = result;
+            this.loading = false;
+            this.notifyListeners();
+          } else if (event === "SIGNED_OUT") {
+            // User signed out
+            this.authState = { isLoggedIn: false, user: null, session: null };
+            this.loading = false;
+            this.notifyListeners();
+          } else if (event === "USER_UPDATED") {
+            // User data updated
+            const result = await checkUserAuth();
+            this.authState = result;
+            this.notifyListeners();
+          }
+        } catch (error) {
+          console.error("Error handling auth state change:", error);
+          // Don't update state on error, keep current state
+        }
+      });
+
+      this.subscription = subscription;
+    } catch (error) {
+      console.error("Error setting up auth subscription:", error);
+    }
 
     // Cleanup subscription on page unload
     if (typeof window !== "undefined") {
-      window.addEventListener("beforeunload", () => {
+      const cleanup = () => {
         if (this.subscription) {
-          this.subscription.unsubscribe();
+          try {
+            this.subscription.unsubscribe();
+          } catch (error) {
+            console.error("Error unsubscribing from auth:", error);
+          }
         }
-      });
+      };
+
+      window.addEventListener("beforeunload", cleanup);
+      window.addEventListener("pagehide", cleanup);
     }
+
+    this.initialized = true;
   }
 
   subscribe(listener: (state: AuthResult, loading: boolean) => void) {
@@ -95,6 +166,16 @@ class AuthManager {
     this.notifyListeners();
 
     try {
+      const supabase = createClient();
+
+      // First try to refresh the session
+      const { error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.warn("Session refresh error:", sessionError);
+      }
+
+      // Then check user auth
       const result = await checkUserAuth();
       this.authState = result;
       this.loading = false;
@@ -119,20 +200,29 @@ export function useAuth() {
     session: null,
   });
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
+    mountedRef.current = true;
     const authManager = AuthManager.getInstance();
 
     // Initialize auth
-    authManager.initialize();
+    authManager.initialize().catch((error) => {
+      console.error("Failed to initialize auth:", error);
+    });
 
     // Subscribe to auth changes
     const unsubscribe = authManager.subscribe((state, loadingState) => {
-      setAuthState(state);
-      setLoading(loadingState);
+      if (mountedRef.current) {
+        setAuthState(state);
+        setLoading(loadingState);
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      mountedRef.current = false;
+      unsubscribe();
+    };
   }, []);
 
   const refreshAuth = async () => {

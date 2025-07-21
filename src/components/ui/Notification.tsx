@@ -34,7 +34,7 @@ export default function Notification({
       case "success":
         return {
           container:
-            "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200",
+            "bg-green-50/90 dark:bg-green-900/50 backdrop-blur-sm border-green-200 dark:border-green-800 text-green-800 dark:text-green-200",
           icon: "text-green-400",
           closeButton:
             "text-green-400 hover:text-green-600 dark:hover:text-green-300",
@@ -59,7 +59,7 @@ export default function Notification({
       default:
         return {
           container:
-            "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
+            "bg-blue-50/90 dark:bg-blue-900/50 backdrop-blur-sm border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200",
           icon: "text-blue-400",
           closeButton:
             "text-blue-400 hover:text-blue-600 dark:hover:text-blue-300",

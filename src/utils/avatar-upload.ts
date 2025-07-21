@@ -1,9 +1,61 @@
-import { createClient } from "./supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 export interface AvatarUploadResult {
   success: boolean;
   url?: string;
   error?: string;
+}
+
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CACHE_KEY_PREFIX = "mls_avatar_url_";
+
+// Get cached avatar URL from localStorage
+function getCachedAvatarUrl(userId: string): string | null {
+  try {
+    const cacheKey = `${CACHE_KEY_PREFIX}${userId}`;
+    const cached = localStorage.getItem(cacheKey);
+
+    if (cached) {
+      const { url, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < CACHE_DURATION) {
+        console.log(
+          "Avatar URL served from localStorage cache for user:",
+          userId,
+        );
+        return url;
+      } else {
+        // Cache expired, remove it
+        localStorage.removeItem(cacheKey);
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error reading from localStorage cache:", error);
+    return null;
+  }
+}
+
+// Set cached avatar URL in localStorage
+function setCachedAvatarUrl(userId: string, url: string): void {
+  try {
+    const cacheKey = `${CACHE_KEY_PREFIX}${userId}`;
+    const cacheData = { url, timestamp: Date.now() };
+    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    console.log("Avatar URL cached in localStorage for user:", userId);
+  } catch (error) {
+    console.error("Error writing to localStorage cache:", error);
+  }
+}
+
+// Clear cached avatar URL from localStorage
+function clearCachedAvatarUrl(userId: string): void {
+  try {
+    const cacheKey = `${CACHE_KEY_PREFIX}${userId}`;
+    localStorage.removeItem(cacheKey);
+    console.log("Avatar URL cache cleared from localStorage for user:", userId);
+  } catch (error) {
+    console.error("Error clearing localStorage cache:", error);
+  }
 }
 
 export async function uploadAvatar(
@@ -13,20 +65,19 @@ export async function uploadAvatar(
   try {
     const supabase = createClient();
 
-    // Validate file type - now supports more formats since we compress to JPEG
-    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
       return {
         success: false,
-        error: "Only JPG, PNG, and WebP files are allowed",
+        error: "Please select a valid image file.",
       };
     }
 
-    // Validate file size (max 2MB for compressed files)
-    if (file.size > 2 * 1024 * 1024) {
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
       return {
         success: false,
-        error: "File size must be less than 2MB",
+        error: "File size must be less than 5MB.",
       };
     }
 
@@ -55,9 +106,15 @@ export async function uploadAvatar(
       .from("avatars")
       .getPublicUrl(filePath);
 
+    const url = `${urlData.publicUrl}?t=${Date.now()}`;
+
+    // Clear cache and set new URL
+    clearCachedAvatarUrl(userId);
+    setCachedAvatarUrl(userId, url);
+
     return {
       success: true,
-      url: `${urlData.publicUrl}?t=${Date.now()}`,
+      url,
     };
   } catch (error) {
     console.error("Avatar upload error:", error);
@@ -70,6 +127,12 @@ export async function uploadAvatar(
 
 export async function getAvatarUrl(userId: string): Promise<string | null> {
   try {
+    // Check localStorage cache first
+    const cachedUrl = getCachedAvatarUrl(userId);
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+
     const supabase = createClient();
 
     // Try to get avatar URL for common extensions
@@ -90,6 +153,14 @@ export async function getAvatarUrl(userId: string): Promise<string | null> {
           .from("avatars")
           .getPublicUrl(filePath);
         const url = `${data.publicUrl}?t=${Date.now()}`;
+
+        // Cache the URL in localStorage
+        setCachedAvatarUrl(userId, url);
+        console.log(
+          "Avatar URL fetched from Supabase and cached for user:",
+          userId,
+        );
+
         return url;
       }
     }
@@ -121,9 +192,17 @@ export async function deleteAvatar(userId: string): Promise<boolean> {
       }
     }
 
+    // Clear cache if avatar was deleted
+    if (deletedAny) {
+      clearCachedAvatarUrl(userId);
+    }
+
     return deletedAny;
   } catch (error) {
     console.error("Error deleting avatar:", error);
     return false;
   }
 }
+
+// Export cache management functions for external use
+export { clearCachedAvatarUrl, getCachedAvatarUrl };

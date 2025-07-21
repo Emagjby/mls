@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import Card from "../../components/ui/Card";
 import { signup } from "./actions";
 import { logSessionInfo } from "@/utils/supabase/client-logger";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,10 +28,27 @@ export default function RegisterPage() {
   // Show loading while checking auth status
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading...</p>
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
+          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -53,19 +70,36 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <Card className="max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Create Account
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
-              Join MLS Framework
-            </p>
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Join Our Community
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-sm mx-auto leading-relaxed">
+            Start your learning journey with MLS Framework
+          </p>
+        </div>
 
-          <form className="space-y-4">
+        {/* Form Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+          <form className="space-y-6">
             <Input
               type="text"
               name="fullName"
@@ -78,8 +112,8 @@ export default function RegisterPage() {
             <Input
               type="email"
               name="email"
-              label="Email"
-              placeholder="Enter your email"
+              label="Email Address"
+              placeholder="Enter your email address"
               onChange={handleChange}
               error={errors.email}
             />
@@ -88,7 +122,7 @@ export default function RegisterPage() {
               type="password"
               name="password"
               label="Password"
-              placeholder="Create a password"
+              placeholder="Create a strong password"
               onChange={handleChange}
               error={errors.password}
             />
@@ -102,26 +136,27 @@ export default function RegisterPage() {
               error={errors.confirmPassword}
             />
 
-            <div className="flex items-center">
+            {/* Terms and Conditions */}
+            <div className="flex items-start space-x-3">
               <input
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded mt-1"
               />
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+              <span className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 I agree to the{" "}
-                <a
+                <Link
                   href="#"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                 >
                   Terms of Service
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a
+                <Link
                   href="#"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </span>
             </div>
 
@@ -129,25 +164,26 @@ export default function RegisterPage() {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-4 text-lg font-semibold"
               formAction={signup}
             >
               Create Account
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          {/* Sign In Link */}
+          <div className="mt-8 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Already have an account?{" "}
-              <a
+              <Link
                 href="/login"
                 className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
               >
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

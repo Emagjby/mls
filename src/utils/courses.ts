@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/client";
 export interface Course {
   id: string;
   name: string;
+  slug: string;
   description: string;
   icon: string;
   color: string;
@@ -17,6 +18,7 @@ export interface Course {
 interface DatabaseCourse {
   id: string;
   name: string;
+  slug: string;
   description: string;
   icon: string;
   color: string;
@@ -43,6 +45,7 @@ export async function fetchCourses(): Promise<Course[]> {
     const courses: Course[] = data.map((course: DatabaseCourse) => ({
       id: course.id,
       name: course.name,
+      slug: course.slug,
       description: course.description,
       icon: course.icon,
       color: course.color,
@@ -83,6 +86,7 @@ export async function fetchCourseById(id: string): Promise<Course | null> {
     const course: Course = {
       id: data.id,
       name: data.name,
+      slug: data.slug,
       description: data.description,
       icon: data.icon,
       color: data.color,

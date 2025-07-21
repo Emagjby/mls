@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-import Card from "../ui/Card";
 import { createClient } from "@/utils/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { validateResetPasswordData } from "@/utils/validation";
@@ -98,7 +97,7 @@ export default function UpdatePasswordForm() {
       } else {
         setMessage({
           type: "success",
-          message: "Password reset successfully! Redirecting to dashboard...",
+          message: "Password updated successfully! Redirecting to dashboard...",
         });
 
         // Redirect to home after 2 seconds
@@ -120,10 +119,25 @@ export default function UpdatePasswordForm() {
   // Show loading while checking auth status or authenticating
   if (loading || isAuthenticating) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">
             {isAuthenticating ? "Authenticating..." : "Loading..."}
           </p>
         </div>
@@ -137,34 +151,36 @@ export default function UpdatePasswordForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <Card className="max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20">
-              <svg
-                className="h-6 w-6 text-green-600 dark:text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-            <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
-              Update Your Password
-            </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              Enter your new password below
-            </p>
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Update Password
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-sm mx-auto leading-relaxed">
+            Enter your new password to secure your account
+          </p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               type="password"
               label="New Password"
@@ -182,17 +198,32 @@ export default function UpdatePasswordForm() {
             />
 
             {message && message.type === "error" && (
-              <div className="p-3 rounded-md text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300">
-                {message.message}
+              <div className="p-4 rounded-xl text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 mr-3 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  {message.message}
+                </div>
               </div>
             )}
 
             {message && message.type === "success" && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-center space-x-2 p-2 bg-green-50 dark:bg-green-900/10 rounded-md">
-                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+              <div className="space-y-4">
+                <div className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                     <svg
-                      className="w-2.5 h-2.5 text-white"
+                      className="w-3 h-3 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -206,14 +237,14 @@ export default function UpdatePasswordForm() {
                     </svg>
                   </div>
                   <span className="text-green-700 dark:text-green-300 text-sm font-medium">
-                    Password reset successfully, redirecting...
+                    Password updated successfully! Redirecting...
                   </span>
                 </div>
                 <div className="text-center">
                   <button
                     type="button"
                     onClick={() => router.push("/")}
-                    className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                    className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline font-medium"
                   >
                     Click here if not redirected automatically
                   </button>
@@ -225,24 +256,43 @@ export default function UpdatePasswordForm() {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-4 text-lg font-semibold"
               disabled={isLoading}
             >
-              {isLoading ? "Updating Password..." : "Update Password"}
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  Updating Password...
+                </>
+              ) : (
+                "Update Password"
+              )}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              <Link
-                href="/"
-                className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          {/* Back Link */}
+          <div className="mt-8 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Back to Dashboard
-              </Link>
-            </p>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Back to Profile
+            </Link>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
