@@ -148,7 +148,7 @@ export default function CourseDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <CourseHeader title={course.name} />
+      <CourseHeader />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 mb-12 shadow-2xl">
@@ -315,7 +315,9 @@ export default function CourseDetailPage() {
                     size="lg"
                     className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 hover:shadow-2xl transition-all duration-300 ease-out shadow-lg relative overflow-hidden group"
                     onClick={() =>
-                      router.push(`/course/${courseSlug}/stage/${nextItem.id}`)
+                      router.push(
+                        `/course/${courseSlug}/stage/${nextItem.order_index}`,
+                      )
                     }
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -388,7 +390,9 @@ export default function CourseDetailPage() {
                       onMouseEnter={() => setHoveredStage(stage.id)}
                       onMouseLeave={() => setHoveredStage(null)}
                       onClick={() =>
-                        router.push(`/course/${courseSlug}/stage/${stage.id}`)
+                        router.push(
+                          `/course/${courseSlug}/stage/${stage.order_index}`,
+                        )
                       }
                     >
                       <div className="flex items-start space-x-4">

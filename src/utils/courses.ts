@@ -40,6 +40,9 @@ interface DatabaseStage {
     reading_time: string;
   };
   videoURL: string;
+  video_duration: number;
+  difficulty: string;
+  tags: string[];
 }
 
 export async function fetchCourses(): Promise<Course[]> {
@@ -130,6 +133,20 @@ export interface LearningStage {
   quizId: string;
 }
 
+export interface StageDetail {
+  id: string;
+  order_index: number;
+  title: string;
+  subtitle: string;
+  content: string;
+  videoUrl: string;
+  duration: number;
+  readingTime: string;
+  difficulty: string;
+  completed: boolean;
+  tags: string[];
+}
+
 export async function fetchStagesByCourseId(
   courseId: string,
 ): Promise<LearningStage[]> {
@@ -167,5 +184,90 @@ export async function fetchStagesByCourseId(
   } catch (error) {
     console.error("Error fetching stages:", error);
     return [];
+  }
+}
+
+export async function fetchStageBySlugAndOrder(
+  courseSlug: string,
+  orderIndex: number,
+): Promise<StageDetail | null> {
+  console.log("🔍 [DEBUG] fetchStageBySlugAndOrder called with:", {
+    courseSlug,
+    orderIndex,
+  });
+
+  try {
+    const supabase = createClient();
+    console.log("🔍 [DEBUG] Supabase client created");
+
+    // First get the course ID from the slug
+    console.log("🔍 [DEBUG] Fetching course with slug:", courseSlug);
+    const { data: courseData, error: courseError } = await supabase
+      .from("courses")
+      .select("id")
+      .eq("slug", courseSlug)
+      .single();
+
+    console.log("🔍 [DEBUG] Course query result:", { courseData, courseError });
+
+    if (courseError || !courseData) {
+      console.error("❌ [DEBUG] Error fetching course:", courseError);
+      console.error("❌ [DEBUG] Course data:", courseData);
+      return null;
+    }
+
+    console.log("✅ [DEBUG] Course found with ID:", courseData.id);
+
+    // Then get the stage by course_id and order_index
+    console.log(
+      "🔍 [DEBUG] Fetching stage with course_id:",
+      courseData.id,
+      "and order_index:",
+      orderIndex,
+    );
+    const { data, error } = await supabase
+      .from("learning_stages")
+      .select("*")
+      .eq("course_id", courseData.id)
+      .eq("order_index", orderIndex)
+      .single();
+
+    console.log("🔍 [DEBUG] Stage query result:", { data, error });
+
+    if (error) {
+      console.error("❌ [DEBUG] Error fetching stage:", error);
+      return null;
+    }
+
+    if (!data) {
+      console.error("❌ [DEBUG] No stage data found");
+      return null;
+    }
+
+    console.log("✅ [DEBUG] Stage data found:", data);
+
+    // Transform the data to match our interface
+    const stage: StageDetail = {
+      id: data.id,
+      order_index: data.order_index,
+      title: data.name,
+      subtitle: data.content,
+      content: data.article?.content || "",
+      videoUrl: data.videoURL || "",
+      duration: data.video_duration || 0,
+      readingTime: data.article?.reading_time || "5 min read",
+      difficulty: data.difficulty || "Beginner",
+      completed: false, // Mock - will be replaced with user_progress data
+      tags: data.tags || [],
+    };
+
+    console.log("✅ [DEBUG] Transformed stage data:", stage);
+    return stage;
+  } catch (error) {
+    console.error(
+      "❌ [DEBUG] Unexpected error in fetchStageBySlugAndOrder:",
+      error,
+    );
+    return null;
   }
 }

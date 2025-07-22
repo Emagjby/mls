@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "../components/layout/ConditionalHeader";
-import Footer from "../components/layout/Footer";
+import ConditionalFooter from "../components/layout/ConditionalFooter";
 import StagewiseDevToolbar from "../components/StagewiseDevToolbar";
 import { ThemeProvider } from "../components/providers/ThemeProvider";
 
@@ -26,7 +26,7 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <ConditionalHeader />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <ConditionalFooter />
           </div>
         </ThemeProvider>
       </body>
