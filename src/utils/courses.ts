@@ -27,6 +27,21 @@ interface DatabaseCourse {
   duration: string;
 }
 
+interface DatabaseStage {
+  id: string;
+  course_id: string;
+  name: string;
+  content: string;
+  order_index: number;
+  is_active: boolean;
+  created_at: string;
+  article: {
+    content: string;
+    reading_time: string;
+  };
+  videoURL: string;
+}
+
 export async function fetchCourses(): Promise<Course[]> {
   try {
     const supabase = createClient();
@@ -63,14 +78,14 @@ export async function fetchCourses(): Promise<Course[]> {
   }
 }
 
-export async function fetchCourseById(id: string): Promise<Course | null> {
+export async function fetchCourseBySlug(slug: string): Promise<Course | null> {
   try {
     const supabase = createClient();
 
     const { data, error } = await supabase
       .from("courses")
       .select("*")
-      .eq("id", id)
+      .eq("slug", slug)
       .single();
 
     if (error) {
@@ -101,5 +116,56 @@ export async function fetchCourseById(id: string): Promise<Course | null> {
   } catch (error) {
     console.error("Error fetching course:", error);
     return null;
+  }
+}
+
+export interface LearningStage {
+  id: string;
+  name: string;
+  order_index: number;
+  completed: boolean;
+  lessonCompleted: boolean;
+  quizCompleted: boolean;
+  lessonId: string;
+  quizId: string;
+}
+
+export async function fetchStagesByCourseId(
+  courseId: string,
+): Promise<LearningStage[]> {
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from("learning_stages")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("order_index");
+
+    if (error) {
+      console.error("Error fetching stages:", error);
+      return [];
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    // Transform the data and add mock completion status
+    const stages: LearningStage[] = data.map((stage: DatabaseStage) => ({
+      id: stage.id,
+      name: stage.name,
+      order_index: stage.order_index,
+      completed: false, // Mock - will be replaced with user_progress data
+      lessonCompleted: false, // Mock - will be replaced with user_progress data
+      quizCompleted: false, // Mock - will be replaced with user_progress data
+      lessonId: stage.order_index.toString(), // Using order_index as lessonId
+      quizId: stage.order_index.toString(), // Using order_index as quizId
+    }));
+
+    return stages;
+  } catch (error) {
+    console.error("Error fetching stages:", error);
+    return [];
   }
 }

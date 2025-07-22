@@ -1,103 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Button from "@/components/ui/Button";
-
-// Demo course data
-const demoCourse = {
-  id: "1",
-  name: "Spanish Basics",
-  description:
-    "Learn fundamental Spanish vocabulary and grammar through interactive lessons and quizzes.",
-  icon: "🇪🇸",
-  color: "#3B82F6",
-  progress: 75,
-  totalStages: 8,
-  completedStages: 6,
-  difficulty: "Beginner",
-  duration: "2 hours",
-  stages: [
-    {
-      id: "1",
-      name: "Greetings & Introductions",
-      completed: true,
-      lessonCompleted: true,
-      quizCompleted: true,
-      lessonId: "1",
-      quizId: "1",
-    },
-    {
-      id: "2",
-      name: "Numbers 1-10",
-      completed: true,
-      lessonCompleted: true,
-      quizCompleted: true,
-      lessonId: "2",
-      quizId: "2",
-    },
-    {
-      id: "3",
-      name: "Colors",
-      completed: true,
-      lessonCompleted: true,
-      quizCompleted: true,
-      lessonId: "3",
-      quizId: "3",
-    },
-    {
-      id: "4",
-      name: "Family Members",
-      completed: false,
-      lessonCompleted: false,
-      quizCompleted: false,
-      lessonId: "4",
-      quizId: "4",
-    },
-    {
-      id: "5",
-      name: "Food & Drinks",
-      completed: false,
-      lessonCompleted: false,
-      quizCompleted: false,
-      lessonId: "5",
-      quizId: "5",
-    },
-    {
-      id: "6",
-      name: "Weather",
-      completed: false,
-      lessonCompleted: false,
-      quizCompleted: false,
-      lessonId: "6",
-      quizId: "6",
-    },
-    {
-      id: "7",
-      name: "Daily Activities",
-      completed: false,
-      lessonCompleted: false,
-      quizCompleted: false,
-      lessonId: "7",
-      quizId: "7",
-    },
-    {
-      id: "8",
-      name: "Final Review",
-      completed: false,
-      lessonCompleted: false,
-      quizCompleted: false,
-      lessonId: "8",
-      quizId: "8",
-    },
-  ],
-};
+import CourseHeader from "@/components/ui/CourseHeader";
+import {
+  fetchCourseBySlug,
+  fetchStagesByCourseId,
+  Course,
+  LearningStage,
+} from "@/utils/courses";
 
 export default function CourseDetailPage() {
   const router = useRouter();
   const params = useParams();
   const courseSlug = params.slug as string;
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [stages, setStages] = useState<LearningStage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadCourseAndStages = async () => {
+      try {
+        setLoading(true);
+        const fetchedCourse = await fetchCourseBySlug(courseSlug);
+        if (fetchedCourse) {
+          setCourse(fetchedCourse);
+          // Fetch stages for this course
+          const fetchedStages = await fetchStagesByCourseId(fetchedCourse.id);
+          setStages(fetchedStages);
+        } else {
+          setError("Course not found");
+        }
+      } catch (err) {
+        setError("Failed to load course");
+        console.error("Error loading course:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (courseSlug) {
+      loadCourseAndStages();
+    }
+  }, [courseSlug]);
 
   const getStatusIcon = (completed: boolean) => {
     if (completed) {
@@ -142,13 +90,65 @@ export default function CourseDetailPage() {
   };
 
   const getNextItem = () => {
-    return demoCourse.stages.find((stage) => !stage.completed);
+    return stages.find((stage) => !stage.completed);
   };
 
   const nextItem = getNextItem();
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <CourseHeader />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            {/* Hero Section Skeleton */}
+            <div className="relative overflow-hidden rounded-3xl bg-gray-200 dark:bg-gray-700 p-8 mb-12">
+              <div className="flex items-start space-x-6">
+                <div className="w-20 h-20 bg-gray-300 dark:bg-gray-600 rounded-2xl"></div>
+                <div className="flex-1">
+                  <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded mb-3"></div>
+                  <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Skeleton */}
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 h-48"></div>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 h-64"></div>
+              </div>
+              <div className="lg:col-span-2">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 h-96"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <CourseHeader />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              {error || "Course not found"}
+            </h1>
+            <Button variant="primary" onClick={() => router.push("/courses")}>
+              Back to Courses
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <CourseHeader title={course.name} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 mb-12 shadow-2xl">
@@ -158,14 +158,14 @@ export default function CourseDetailPage() {
 
           <div className="relative z-10 flex items-start space-x-6">
             <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-5xl shadow-lg">
-              {demoCourse.icon}
+              {course.icon}
             </div>
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-                {demoCourse.name}
+                {course.name}
               </h1>
               <p className="text-xl text-blue-100 mb-6 max-w-2xl leading-relaxed">
-                {demoCourse.description}
+                {course.description}
               </p>
             </div>
           </div>
@@ -206,14 +206,17 @@ export default function CourseDetailPage() {
                         strokeWidth="8"
                         fill="transparent"
                         strokeDasharray={`${2 * Math.PI * 40}`}
-                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - demoCourse.progress / 100)}`}
+                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - ((course.completedStages / course.totalStages) * 100) / 100)}`}
                         className="text-blue-600 transition-all duration-1000 ease-out"
                         strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-lg font-bold text-gray-900 dark:text-white">
-                        {demoCourse.progress}%
+                        {Math.round(
+                          (course.completedStages / course.totalStages) * 100,
+                        )}
+                        %
                       </span>
                     </div>
                   </div>
@@ -248,7 +251,7 @@ export default function CourseDetailPage() {
                       </span>
                     </div>
                     <span className="font-semibold text-gray-900 dark:text-white mr-1">
-                      {demoCourse.stages.length}
+                      {course.totalStages}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
@@ -273,7 +276,7 @@ export default function CourseDetailPage() {
                       </span>
                     </div>
                     <span className="font-semibold text-gray-900 dark:text-white mr-1">
-                      {demoCourse.completedStages}
+                      {course.completedStages}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
@@ -298,7 +301,7 @@ export default function CourseDetailPage() {
                       </span>
                     </div>
                     <span className="font-semibold text-gray-900 dark:text-white mr-1">
-                      {demoCourse.duration}
+                      {course.duration}
                     </span>
                   </div>
                 </div>
@@ -372,7 +375,7 @@ export default function CourseDetailPage() {
 
               <div className="p-6">
                 <div className="space-y-4">
-                  {demoCourse.stages.map((stage, index) => (
+                  {stages.map((stage: LearningStage, index: number) => (
                     <div
                       key={stage.id}
                       className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] ${
